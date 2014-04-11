@@ -11,6 +11,16 @@ Config::set(array(
 	'database.port' => '3306',
 	'database.name' => 'comp140grading',
 
+	'auth.driver' => 'cas',
+	'users.driver' => 'cas',
+	'groups.driver' => 'db',
+
+	'auth.driver' => 'cas',
+	'auth.cas.host' => 'netid.rice.edu',
+	'auth.cas.port' => 443,
+	'auth.cas.path' => '/cas',
+	'auth.cas.cert' => FILE_ROOT.'/rice-cas.pem',
+
 	/**
 	 * Development Mode
 	 * 

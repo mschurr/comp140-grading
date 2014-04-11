@@ -1,7 +1,7 @@
 comp140-grading
 ===============
 
-A simple grading application to simplify participation grade collation and merging with Coursera.
+A simple grading application to simplify participation grade collation and merging with Coursera. Created for Rice University's COMP 140.
 
 To use this,
 * Clone the repository
@@ -13,5 +13,5 @@ To use this,
 
 Requirements:
 * Composer
-* MySQL
+* MySQL >= 5
 * PHP >= 5.5

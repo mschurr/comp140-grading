@@ -1,54 +1,71 @@
 <?php
-/**
- * Routing for standard teaching-assistant areas.
- */
-Route::filter(function(Request $request){
+/*############################
+# Helper Modules
+############################*/
+
+import('GradingSystem');
+
+/*############################
+# Public Pages
+############################*/
+
+Route::get('/', function(Request $request, Response $response){
+	$user = $request->session->user;
+
+	return View::make('Home')->with(array(
+		'user' => $user,
+		'authorized' => $user && $user->hasPrivilege(Privilege::TeachingAssistant)
+	));
+});
+
+/*############################
+# Teaching Assistant Pages
+############################*/
+
+$teachingAssistantFilter = function(Request $request){
 	if(!$request->session->auth->loggedIn)
 		return Redirect::to('AuthController@login');
 	if(!$request->session->auth->user->hasPrivilege(Privilege::TeachingAssistant))
 		return 403;
 	return true;
-}, function(){
-	Route::get('/grade', 'TeachingController'); // show days
-	Route::any('/grade/{year}/{month}/{day}', 'GradingController')
-		->where(function(Request $request, $year, $month, $day){
-			if(!is_integer($year) || $year < 2000 || $year > date('Y'))
-				return false;
-			if(!is_integer($month) || $month < 1 || $month > 12)
-				return false;
-			if(!is_integer($day) || $day < 1 || $day > 31)
-				return false;
-			return true;
-		});
+};
+
+Route::filter($teachingAssistantFilter, function() {
+	Route::get('/assignments', 'TeachingAssistantController@showAssignments');
+	Route::get('/assignment/{id}', 'TeachingAssistantController@showAssignment')
+		->where('id', '[0-9]+');
+	Route::post('/assignment/{id}', 'TeachingAssistantController@gradeAssignment')
+		->where('id', '[0-9]+');
 });
 
-/**
- * Routing for instructor administrative areas.
- */
-Route::filter(function(Request $request){
+/*############################
+# Administrator Pages
+############################*/
+
+$adminFilter = function(Request $request) {
 	if(!$request->session->auth->loggedIn)
 		return Redirect::to('AuthController@login');
 	if(!$request->session->auth->user->hasPrivilege(Privilege::Instructor))
 		return 403;
 	return true;
-}, function(){
-	Route::get('/admin', 'AdminController');
-	Route::any('/admin/teaching-assistants', 'AdminController');
-	Route::any('/admin/assignment', 'AdminController');
-	Route::any('/admin/grades', 'AdminController');
-	Route::any('/admin/students', 'AdminController');
+};
+
+Route::filter($adminFilter, function(){
+	
 });
 
-/**
- * Unrestricted routing.
- */
-Route::get('/login', 'AuthController@login');
-Route::post('/login', 'AuthController@loginAction');
-Route::get('/logout', 'AuthController@logout');
+/*############################
+# Authentication Service
+############################*/
 
-/**
- * Error routing.
- */
+Route::get ('/login',  'AuthController@login'      );
+Route::post('/login',  'AuthController@loginAction');
+Route::get ('/logout', 'AuthController@logout'     );
+
+/*############################
+# Error Pages
+############################*/
+
 Route::error(404, function(Request $request, Response $response){
 	return View::make('errors.404');
 });
