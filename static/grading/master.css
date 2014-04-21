@@ -275,6 +275,26 @@ table.reset tr:nth-child(2n) {
 	####################################################################################
 */
 
+div.page_control {
+	text-align: center;
+}
+
+div.page_control a {
+	padding: 4px 0px;
+	display: inline-block;
+	text-align: center;
+	width: 28px;
+	font-size: 16px;
+	border: 1px solid #666;
+	border-bottom: 1px solid #666 !important;
+	color: #FFF !important;
+	background-color: #CCC;
+}
+
+div.page_control a.active {
+	background-color: #000;
+}
+
 table.grid {
 	color: #252626;
 	background-color: #FFF;
@@ -368,6 +388,10 @@ table.grid td.control
 	text-align: center;
 	margin-top: 4px;
 	margin-bottom: 4px;
+}
+
+table.grid.midalign td {
+	vertical-align: middle !important;
 }
 
 /*

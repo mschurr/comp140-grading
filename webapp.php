@@ -10,12 +10,11 @@ import('GradingSystem');
 ############################*/
 
 Route::get('/', function(Request $request, Response $response){
-	$user = $request->session->user;
-
-	return View::make('Home')->with(array(
-		'user' => $user,
-		'authorized' => $user && $user->hasPrivilege(Privilege::TeachingAssistant)
-	));
+	if(!$request->session->user)
+		return Redirect::to('AuthController@login');
+	if(!$request->session->user->hasPrivilege(Privilege::TeachingAssistant))
+		return 403;
+	return Redirect::to('TeachingAssistantController@showAssignments');
 });
 
 /*############################
@@ -51,7 +50,24 @@ $adminFilter = function(Request $request) {
 };
 
 Route::filter($adminFilter, function(){
-	
+	// Assignments
+	Route::get('/admin/assignments', 'Admin.Assignments@get');
+	Route::get('/admin/assignments/add', 'Admin.Assignments@add');
+	Route::get('/admin/assignments/edit/{id}', 'Admin.Assignments@edit')->where('id', '[0-9]+');
+	Route::post('/admin/assignments/add', 'Admin.Assignments@addAction');
+	Route::post('/admin/assignments/edit/{id}', 'Admin.Assignments@editAction')->where('id', '[0-9]+');
+	Route::get('/admin/assignments/delete/{id}', 'Admin.Assignments@delete')->where('id', '[0-9]+');
+	Route::post('/admin/assignments/delete/{id}', 'Admin.Assignments@deleteAction')->where('id', '[0-9]+');
+
+	// Instructors
+
+	// Graders
+
+	// Grader Assignments
+
+	// Grader Overrides
+
+	// Grades
 });
 
 /*############################

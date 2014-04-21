@@ -24,11 +24,21 @@
                 	Welcome, {{{ $user }}}!<br />
                     
                     <ul class="side_navigation">
-                    	<li><a href="{{{ URL::to('/') }}}">Home</a></li>
 
                     	@if($user->hasPrivilege(Privilege::TeachingAssistant))
                     		<li><a href="{{{ URL::to('TeachingAssistantController@showAssignments') }}}">Grade</a></li>
+                        @else
+                            <li><a href="{{{ URL::to('/') }}}">Home</a></li>
                     	@endif
+
+                        @if($user->hasPrivilege(Privilege::Instructor))
+                            <li><a href="{{{ URL::to('Admin.Assignments@get') }}}">Manage Assignments and Overrides</a></li>
+                            <!--<li><a href="">Manage Instructors</a></li>
+                            <li><a href="">Manage Graders</a></li>
+                            <li><a href="">Manage Grader Assignments</a></li>
+                            <li><a href="">Manage Students</a></li>
+                            <li><a href="">Manage Grades</a></li>-->
+                        @endif
 
                     	<li><a href="{{{ URL::to('AuthController@logout') }}}">Log out</a></li>
                     </ul>
