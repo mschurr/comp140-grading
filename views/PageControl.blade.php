@@ -7,34 +7,38 @@
 		$pageUrl = function($pagenum) { return URL; } - closure that returns url to provided page number
 --}}
 
-<div class="page_control">
+@if($pages > 1)
 
-	Page:
+	<div class="page_control">
 
-	@if($page > 6)
-		<a href="{{{ $pageUrl(1) }}}">1</a>
+		Page:
 
-		...
-	@endif
+		@if($page > 6)
+			<a href="{{{ $pageUrl(1) }}}">1</a>
 
-	@for($i = 5; $i > 0; $i--)
-		@if($page - $i > 0)
-			<a href="{{{ $pageUrl($page - $i) }}}">{{{ $page - $i }}}</a>
+			...
 		@endif
-	@endfor
 
-	<a href="#" class="active">{{{ $page }}}</a>
+		@for($i = 5; $i > 0; $i--)
+			@if($page - $i > 0)
+				<a href="{{{ $pageUrl($page - $i) }}}">{{{ $page - $i }}}</a>
+			@endif
+		@endfor
 
-	@for($i = 1; $i < 6; $i++)
-		@if($page + $i <= $pages)
-			<a href="{{{ $pageUrl($page + $i) }}}">{{{ $page + $i }}}</a>
+		<a href="#" class="active">{{{ $page }}}</a>
+
+		@for($i = 1; $i < 6; $i++)
+			@if($page + $i <= $pages)
+				<a href="{{{ $pageUrl($page + $i) }}}">{{{ $page + $i }}}</a>
+			@endif
+		@endfor
+
+		@if($page < $pages - 5)
+			...
+
+			<a href="{{{ $pageUrl($pages) }}}">{{{ $pages }}}</a>
 		@endif
-	@endfor
 
-	@if($page < $pages - 5)
-		...
+	</div>
 
-		<a href="{{{ $pageUrl($pages) }}}">{{{ $pages }}}</a>
-	@endif
-
-</div>
+@endif

@@ -145,7 +145,28 @@ class GradingSystem
 			$grade = intval($grade);
 		}
 
-		return is_integer($grade);
+		if(!is_integer($grade))
+			return false;
+
+		return isset(Grades::$values[$grade]);
+	}
+
+	/**
+	 * Formats a grade.
+	 */
+	protected /*string*/ function formatGrade(/*int*/ $grade)
+	{
+		if(isset(Grades::$values[$grade]))
+			return Grades::$values[$grade];
+		return $grade;
+	}
+
+	/**
+	 * Possible Grades
+	 */
+	protected /*array<int,string>*/ function possibleGrades()
+	{
+		return Grades::$values;
 	}
 
 	/**
@@ -213,20 +234,22 @@ class GradingSystem
 	/**
 	 * Adds a grader to the system.
 	 */
-	protected /*void*/ function addGrader(/*string*/ $netid)
+	protected /*int*/ function addGrader(/*string*/ $netid)
 	{
 		$user = $this->enforceExistence($netid);
 		$user->addPrivilege(Privilege::TeachingAssistant);
+		return $user->id;
 	}
 
 	/**
 	 * Adds an instructor to the system.
 	 */
-	protected /*void*/ function addInstructor(/*string*/ $netid)
+	protected /*int*/ function addInstructor(/*string*/ $netid)
 	{
 		$user = $this->enforceExistence($netid);
 		$user->addPrivilege(Privilege::TeachingAssistant);
 		$user->addPrivilege(Privilege::Instructor);
+		return $user->id;
 	}
 
 	/**
@@ -238,5 +261,139 @@ class GradingSystem
 		$user = $this->enforceExistence($netid);
 		$user->removePrivilege(Privilege::TeachingAssistant);
 		$user->removePrivilege(Privilege::Instructor);
+	}
+
+	/**
+	 * Returns all students.
+	 */
+	protected /*DatabaseChunkIterator*/ function getAllStudents()
+	{
+		return new DatabaseChunkIterator("SELECT * FROM `students` ORDER BY `last_name` ASC, `first_name` ASC;", array(), 50);
+	}
+
+	/**
+	 * Returns all students in a section.
+	 */
+	protected /*DatabaseChunkIterator*/ function getAllStudentsInSection(/*int*/ $section)
+	{
+		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? ORDER BY `last_name` ASC, `first_name` ASC;", array($section), 50);
+	}
+
+	/**
+	 * Assigns a grader to a student.
+	 */
+	protected /*void*/ function assignGrader(/*int*/ $userid, /*int*/ $studentid)
+	{
+		$data = array(
+			'userid' => $userid,
+			'studentid' => $studentid
+		);
+		$this->db->prepare("INSERT INTO `graders` (".sql_keys($data).") VALUES (".sql_values($data).");")->execute(sql_parameters($data));
+	}
+
+	/**
+	 * Returns information about a student (or null if does not exist).
+	 */
+	protected /*array<string,mixed>*/ function getStudent(/*int*/ $studentid)
+	{
+		return Cache::section('students')->remember($studentid, function() use (&$studentid){
+			$query = $this->db->prepare("SELECT * FROM `students` WHERE `id` = ? LIMIT 1;")->execute($studentid);
+
+			if(len($query) > 0)
+				return $query->row;
+			return null;
+		});
+	}
+
+	/**
+	 * Returns the name of student.
+	 */
+	protected /*array<string,mixed>*/ function getStudentName(/*int*/ $studentid)
+	{
+		$student = $this->getStudent($studentid);
+		return $student['last_name'].', '.$student['first_name'].' ('.$student['netid'].')';
+	}
+
+	/**
+	 * Adds a student to the system.
+	 */
+	protected /*int*/ function addStudent($netid, $email, $last_name, $first_name, $section)
+	{
+		$data = array(
+			'netid' => $netid,
+			'email' => $email,
+			'last_name' => $last_name,
+			'first_name' => $first_name,
+			'section' => $section
+		);
+		$query = $this->db->prepare("INSERT INTO `students` (".sql_keys($data).") VALUES (".sql_values($data).");")->execute(sql_parameters($data));
+		return $query->insertId;
+	}
+
+	/**
+	 * Returns the graders for all students for an assignment.
+	 */
+	protected /*array<int, int>*/ function getGradersForAssignment(/*int*/ $aid)
+	{
+		// Get assignment information.
+		$assignment = $this->getAssignment($aid);
+
+		if($assignment === null)
+			return null;
+
+		// Get graders for student's in assignment's section.
+		$query = $this->db->prepare("SELECT * FROM `graders` JOIN `students` ON `graders`.`studentid` = `students`.`id` WHERE `section` = ?;")->execute($assignment['section']);
+		$graders = array();
+
+		foreach($query as $row)
+			$graders[$row['studentid']] = $row['userid'];
+
+		// Get overrides for the assignment.
+		$query = $this->db->prepare("SELECT * FROM `graders_override` WHERE `assignmentid` = ?;")->execute($aid);
+
+		foreach($query as $row)
+			$graders[$row['studentid']] = $row['userid'];
+
+		return $graders;
+	}
+
+
+	/**
+	 * Returns the grader overrides for an assignment.
+	 */
+	protected /*array<int, int>*/ function getOverridesForAssignment(/*int*/ $aid)
+	{
+		// Get overrides for the assignment.
+		$graders = array();
+		$query = $this->db->prepare("SELECT * FROM `graders_override` WHERE `assignmentid` = ?;")->execute($aid);
+
+		foreach($query as $row)
+			$graders[$row['studentid']] = $row['userid'];
+
+		return $graders;
+	}
+
+	/**
+	 * Returns the name of a grader.
+	 */
+	protected /*string*/ function getGraderName(/*int*/ $uid)
+	{
+		return Cache::section('graders')->remember($uid, function() use (&$uid){
+			$user = App::getUserService()->load($uid);
+
+			if(!$user)
+				return null;
+
+			return $user->username;
+		});
+	}
+
+	/**
+	 * Removes an override from an assignment.
+	 */
+	protected /*void*/ function dropOverride(/*int*/ $aid, /*int*/ $sid)
+	{
+		$this->db->prepare("DELETE FROM `graders_override` WHERE `assignmentid` = ? AND `studentid` = ?;")
+		 ->execute($aid, $sid);
 	}
 }

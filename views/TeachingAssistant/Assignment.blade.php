@@ -29,21 +29,31 @@
 				<thead>
 					<tr>
 						<th>Student</th>
-						<th width="70">Grade</th>
+						<th width="200">Grade</th>
 					</tr>
 				</thead>
 				<tbody>
 					@foreach($students as $sid => $s)
 					<tr>
-						<td>{{{ $s['last_name'] }}} {{{ $s['first_name'] }}} ({{{ $s['netid'] }}})</td>
-						<td><input type="text" 
-						           name="g{{{$sid}}}" 
-						           value="{{{$grade[$sid]}}}"
-						           style="width: 50px; text-align: center; 
-						           @if(isset($errors['g'.$sid]))
-						            border: 1px solid #FF0000;
-						           @endif
-						           " /></td>
+						<td>{{{GradingSystem::getStudentName($sid)}}}</td>
+						<td>
+							<select name="g{{{$sid}}}"
+								@if(isset($errors['g'.$sid]))
+						        style="border: 1px solid #FF0000;"
+						        @endif
+						    >
+								<option value=""></option>
+
+								@foreach(GradingSystem::possibleGrades() as $pg => $pv)
+									<option value="{{{$pg}}}" 
+										@if($grade[$sid] == $pg)
+										selected="selected"
+										@endif
+										>{{{$pv}}}</option>
+								@endforeach
+
+							</select>
+						</td>
 					</tr>
 					@endforeach
 				</tbody>

@@ -35,12 +35,26 @@ Config::set(array(
 	'cookies.secretKey' => 'qwertyuiop',
 ));
 
+class GradingConfig {
+	public static $section = array(
+		1 => 'Section 1 (10:50-12:05 PM TR)',
+		2 => 'Section 2 (02:30-03:45 PM TR)',
+		3 => 'Section 3 (01:00-02:15 PM TR)'
+	);
+}
+
 class Privilege {
 	const Instructor = 1;
 	const TeachingAssistant = 2;
 }
 
 class Grades {
+	public static $values = array(
+		1 => 'Absent',
+		2 => 'Late',
+		3 => 'Check',
+		4 => 'CheckPlus'
+	);
 	const Absent = 1;
 	const Late = 2;
 	const Check = 3;

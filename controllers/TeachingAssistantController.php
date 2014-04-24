@@ -56,7 +56,7 @@ class TeachingAssistantController extends Controller
 						return $post['g'.$key];
 					if(isset($grades[$key]))
 						return $grades[$key];
-					return NullObject::sharedInstance();
+					return -1;
 				}),
 			'errors' => new ImmutableDefaultArrayMap(null, $errors)
 		));
@@ -82,13 +82,18 @@ class TeachingAssistantController extends Controller
 			return 400;
 
 		foreach($students as $sid => $student) {
-			if(!GradingSystem::validateGrade($this->request->post['g'.$sid]))
+			if(strlen($this->request->post['g'.$sid]) > 0
+			&& !GradingSystem::validateGrade($this->request->post['g'.$sid]))
+				$errors['g'.$sid] = "You must enter a valid grade.";
+			if(strlen($this->request->post['g'.$sid]) === 0
+			&& isset($grades[$sid]))
 				$errors['g'.$sid] = "You must enter a valid grade.";
 		}
 
 		if(count($errors) == 0) {
 			foreach($students as $sid => $student) {
-				GradingSystem::setGrade($id, $sid, $this->request->post['g'.$sid]);
+				if(strlen($this->request->post['g'.$sid]) > 0)
+					GradingSystem::setGrade($id, $sid, $this->request->post['g'.$sid]);
 			}	
 		}
 

@@ -32,7 +32,7 @@
                     	@endif
 
                         @if($user->hasPrivilege(Privilege::Instructor))
-                            <li><a href="{{{ URL::to('Admin.Assignments@get') }}}">Manage Assignments and Overrides</a></li>
+                            <li><a href="{{{ URL::to('Admin.Assignments@get') }}}">Manage Assignments</a></li>
                             <!--<li><a href="">Manage Instructors</a></li>
                             <li><a href="">Manage Graders</a></li>
                             <li><a href="">Manage Grader Assignments</a></li>

@@ -9,10 +9,10 @@
 		<table class="grid midalign">
 			<thead>
 				<tr>
-					<th>Section</th>
-					<th>Date</th>
+					<th width="50">Section</th>
+					<th width="110">Date</th>
 					<th>Description</th>
-					<th>Grade</th>
+					<th width="100">Grade</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -25,6 +25,7 @@
 						<td>{{{$a['month']}}}/{{{$a['day']}}}/{{{$a['year']}}}</td>
 						<td>{{{$a['description']}}}</td>
 						<td><a class="form_submit_style" href="{{{ URL::to('TeachingAssistantController@showAssignment', $a['id']) }}}">Grade</a></td>
+					</tr>
 				@endforeach
 			</tbody>
 		</table>
