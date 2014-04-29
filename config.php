@@ -50,14 +50,19 @@ class Privilege {
 
 class Grades {
 	public static $values = array(
-		1 => 'Absent',
-		2 => 'Late',
+		0 => 'Absent',
+		1 => 'Late',
+		2 => 'CheckMinus',
 		3 => 'Check',
 		4 => 'CheckPlus'
 	);
-	const Absent = 1;
-	const Late = 2;
+	
+	const Absent = 0;
+	const Late = 1;
+	const CheckMinus = 2;
 	const Check = 3;
 	const CheckPlus = 4;
 }
 
+// add tables, sort by tables and show by student names
+// add convenience function to add table override

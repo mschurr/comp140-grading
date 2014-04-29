@@ -1,15 +1,13 @@
 <?php
 /**
  * You can write your own command line utilities here.
- * Usage: php cliapp.php <function> <...args>
+ * Usage: php server.php <command> <...args>
  */
 
 // Must make sure config.php is properly configured before running this script.
 import('GradingSystem');
 
 CLIApplication::listen('init', function($args){
-
-
 	// List of instructor network IDs to info
 	// Instructors are also considered graders.
 	$instructors = [
@@ -67,7 +65,6 @@ CLIApplication::listen('seed', function($args){
 	// Create 100 dummy assignments.
 
 	// Create 100 dummy students.
-	
 });
 
 CLIApplication::listen('export', function($args){
@@ -93,6 +90,7 @@ CLIApplication::listen('export', function($args){
 			$student = GradingSystem::getStudent($studentid);
 
 			// ...code to export grade here.
+			// Professor can fill this in, not sure exact format needed.
 		}
 	}
 

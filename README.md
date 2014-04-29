@@ -11,6 +11,9 @@ To use this,
 * Run the development server for testing `php -S localhost:80 server.php`
 * Deploy using HipHop `./hhvm.sh` or any PHP-enabled web server
 
+Command line access is also available. For available commands, type `php server.php`. Use `clipapp.php` to register additional commands.
+Example: `php server.php export ./grades.csv`
+
 Requirements:
 * Composer
 * MySQL >= 5
