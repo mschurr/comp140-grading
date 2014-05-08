@@ -27,7 +27,7 @@ CLIApplication::listen('init', function($args){
 
 	// List of student information.
 	$students = [
-		// array('netid' => '', 'email' => '', 'last_name' => '', 'first_name' => '', section => #)
+		// array('netid' => '', 'email' => '', 'last_name' => '', 'first_name' => '', section => #, table => #)
 	];
 
 	// Addition of assignments and grader overrides for individual assignments
@@ -68,12 +68,17 @@ CLIApplication::listen('seed', function($args){
 });
 
 CLIApplication::listen('export', function($args){
-	if(count($args) < 1) {
-		fprintf(STDOUT, "Usage: export <file>\r\n");
+	if(count($args) < 2) {
+		fprintf(STDOUT, "Usage: export <file> - Exports grades into a CSV file with the provided name.\r\n");
 		return -1;
 	}
 
-	$file = File::open($args[0]);
+	$file = File::open($args[1]);
+
+	if($file->exists) {
+		fprintf(STDOUT, "Error: specified file already exists.\r\n");
+		return -1;
+	}
 
 	if(!$file->isWriteable) {
 		fprintf(STDOUT, "Error: specified file is not writeable.\r\n");
@@ -91,9 +96,11 @@ CLIApplication::listen('export', function($args){
 
 			// ...code to export grade here.
 			// Professor can fill this in, not sure exact format needed.
+			// $file->append($string);
 		}
 	}
 
+	fprintf(STDOUT, "Saved: %s\r\n", $file->canonicalPath);
 	fprintf(STDOUT, "Grade Export Completed.\r\n");
 	return 0;
 });

@@ -46,10 +46,11 @@
 
 								@foreach(GradingSystem::possibleGrades() as $pg => $pv)
 									<option value="{{{$pg}}}" 
-										@if($grade[$sid] == $pg)
+										@if(strlen($grade[$sid]) > 0 && $grade[$sid] == $pg)
 										selected="selected"
 										@endif
 										>{{{$pv}}}</option>
+									}
 								@endforeach
 
 							</select>

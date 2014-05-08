@@ -32,6 +32,7 @@ CREATE TABLE `students` (
   `last_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `first_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `section` int(10) unsigned NOT NULL,
+  `table` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `students_netid_unique` (`netid`),
   UNIQUE KEY `students_email_unique` (`email`)

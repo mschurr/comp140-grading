@@ -63,6 +63,3 @@ class Grades {
 	const Check = 3;
 	const CheckPlus = 4;
 }
-
-// add tables, sort by tables and show by student names
-// add convenience function to add table override

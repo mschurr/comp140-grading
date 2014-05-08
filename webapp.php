@@ -64,7 +64,8 @@ Route::filter($adminFilter, function(){
 	Route::get('/admin/assignments/{id}/delete', 'Admin.Assignments@delete')->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/delete', 'Admin.Assignments@deleteAction')->where('id', '[0-9]+');
 	
-	Route::post('/admin/assignments/{id}/add-override', 'Admin.Assignments@addOverride')->where('id', '[0-9]+');
+	Route::get('/admin/assignments/{id}/add-override', 'Admin.Assignments@addOverride')->where('id', '[0-9]+');
+	Route::post('/admin/assignments/{id}/add-override', 'Admin.Assignments@addOverrideAction')->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/delete-override', 'Admin.Assignments@deleteOverride')->where('id', '[0-9]+');
 });
 

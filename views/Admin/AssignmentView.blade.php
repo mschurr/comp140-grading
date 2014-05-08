@@ -55,19 +55,13 @@
 			</tbody>
 		</table>
 
-		@if($errors['override'])
-			<div class="error">{{{ $errors['override'] }}}</div>
-		@endif
-		<form action="{{{ URL::to([$this, 'addOverride'], $assignment['id']) }}}" method="POST">
-			<input type="hidden" name="_csrf" value="{{{ CSRF::make() }}}" />
-			<input type="submit" value="Add Override" />
-		</form>
+		<a href="{{{ URL::to([$this, 'addOverride'], $assignment['id']) }}}" class="form_submit_style">Add Override</a>
 	</div>
 
 	<div class="section">
 		<div class="header">Grades</div>
 
-		@if(count($grades) != $students->records)
+		@if(count($grades) < $students->records)
 			<div class="warning">
 				Attention: {{{ ($students->records - count($grades)) }}} 
 				@if(($students->records - count($grades)) == 1)
@@ -84,8 +78,8 @@
 		<table class="grid">
 			<thead>
 				<tr>
-					<th width="35%">Student</th>
-					<th>Grader</th>
+					<th>Student</th>
+					<th width="25%">Grader</th>
 					<th width="100">Grade</th>
 				</tr>
 			</thead>

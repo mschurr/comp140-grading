@@ -74,9 +74,10 @@ class GradingSystem
 	protected /*array<int>*/ function getStudents(/*int*/ $aid, /*int*/ $userid)
 	{
 		$query = $this->db->prepare("
-			SELECT `studentid`, `netid`, `last_name`, `first_name` FROM `graders_override` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `assignmentid` = :aid
+			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders_override` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `assignmentid` = :aid
 			UNION
-			SELECT `studentid`, `netid`, `last_name`, `first_name` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid);
+			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid)
+			ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;
 		")->execute(array(
 			':aid' => $aid,
 			':userid' => $userid
@@ -276,7 +277,7 @@ class GradingSystem
 	 */
 	protected /*DatabaseChunkIterator*/ function getAllStudentsInSection(/*int*/ $section)
 	{
-		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? ORDER BY `last_name` ASC, `first_name` ASC;", array($section), 50);
+		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;", array($section), 50);
 	}
 
 	/**
@@ -311,20 +312,21 @@ class GradingSystem
 	protected /*array<string,mixed>*/ function getStudentName(/*int*/ $studentid)
 	{
 		$student = $this->getStudent($studentid);
-		return $student['last_name'].', '.$student['first_name'].' ('.$student['netid'].')';
+		return $student['last_name'].', '.$student['first_name'].' ('.$student['netid'].') (Table '.$student['table'].')';
 	}
 
 	/**
 	 * Adds a student to the system.
 	 */
-	protected /*int*/ function addStudent($netid, $email, $last_name, $first_name, $section)
+	protected /*int*/ function addStudent($netid, $email, $last_name, $first_name, $section, $table)
 	{
 		$data = array(
 			'netid' => $netid,
 			'email' => $email,
 			'last_name' => $last_name,
 			'first_name' => $first_name,
-			'section' => $section
+			'section' => $section,
+			'table' => $table
 		);
 		$query = $this->db->prepare("INSERT INTO `students` (".sql_keys($data).") VALUES (".sql_values($data).");")->execute(sql_parameters($data));
 		return $query->insertId;
@@ -395,5 +397,21 @@ class GradingSystem
 	{
 		$this->db->prepare("DELETE FROM `graders_override` WHERE `assignmentid` = ? AND `studentid` = ?;")
 		 ->execute($aid, $sid);
+	}
+
+	/**
+	 *
+	 */
+	protected /*void*/ function addOverride(/*int*/ $aid, /*int*/ $userid, /*int*/ $studentid)
+	{
+
+	}
+
+	/**
+	 *
+	 */
+	protected /*void*/ function addOverrideForTable(/*int*/ $aid, /*int*/ $userid, /*int*/ $table)
+	{
+
 	}
 }

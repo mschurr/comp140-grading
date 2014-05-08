@@ -223,21 +223,44 @@ class Assignments extends Controller
 	/**
 	 *
 	 */
-	public function addOverride($id)
+	public function addOverride($id, $errors = array())
 	{
 		$assignment = GradingSystem::getAssignment($id);
 
 		if(!$assignment)
 			return 404;
 
+		return View::make('Admin.AssignmentOverride')->with(array(
+			'a' => $assignment,
+			'errors' => $errors
+		));
+	}
+
+	/**
+	 *
+	 */
+	public function addOverrideAction($id)
+	{
+		// Get information about the assignment.
+		$assignment = GradingSystem::getAssignment($id);
+
+		// Validate the assignment.
+		if(!$assignment)
+			return 404;
+
+		// Validate the CSRF token.
 		if(!CSRF::check($this->request->post['_csrf']))
 			return 400;
 
 		// Process
-		throw new NotImplementedException;
-		// Add
+		$errors = array();
+		// TODO
 
-		// Redirect to assignment view.
+		// If there are errors, reshow the form.
+		if(count($errors) > 0)
+			return $this->addOverride($id, $errors);
+
+		// Otherwise, redirect the user back to the assignment view.
 		return Redirect::to([$this, 'view'], $id);
 	}
 
