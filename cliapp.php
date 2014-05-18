@@ -2,46 +2,81 @@
 /**
  * You can write your own command line utilities here.
  * Usage: php server.php <command> <...args>
+ *
+ * You should make sure config.php is properly set before running these scripts.
  */
 
-// Must make sure config.php is properly configured before running this script.
+/**
+ * Required Libraries
+ */
 import('GradingSystem');
 
-CLIApplication::listen('init', function($args){
-	// List of instructor network IDs to info
-	// Instructors are also considered graders.
-	$instructors = [
-		"mas20" => array("name" => "Matthew Schurr")
-	];
+/**
+ * Initialization
+ * Imports initial information into the grading system at the start of the year.
+ * Usage: php server.php init <instructors> <graders> <grader_map> <students>
+ *
+ * <instructors> - json file containing instructors
+ * <graders> - json file containing graders
+ * <grader_map> - json file assigning graders to students
+ * <students> - json file containing students
+ *
+ * File format for graders and instructors is: 
+ *     { "netid" : {"name" : "Name"}, ... }
+ *
+ * File format for grader map is:
+ *     { "grader_netid" : "student_netid", ... }
+ *
+ * File format for students is:
+ *     [{"netid" : "", "email" : "", "last_name" : "", "first_name" : "", "section" : #, "table" : #}, ...]
+ *
+ * All other information should be managed through the application itself.
+ */
+CLIApplication::listen('init', function($args) {
+	if(count($args) < 5) {
+		fprintf(STDOUT, "Usage: init <instructors> <graders> <grader_map> <students> - Imports initial information into the grading system.\r\n");
+		return 1;
+	}
 
-	// Map of grader network IDs to info.
-	$graders = [
+	$timer = new Timer();
 
-	];
+	try {
+		// Load instructors and graders from file.
+		$instructors = from_json(File::open($args[1])->content);
+		$graders = from_json(File::open($args[2])->content);
 
-	// Map assigning grader network IDs to student network IDs.
-	// Represents default assignment of graders to students (if not overridden).
-	$grader_map = array(
-		// "grader_netid" => "student_netid"
-	);
+		// Load grader assignments from file.
+		// File is of JSON format: 
+		$grader_map = from_json(File::open($args[3])->content);
 
-	// List of student information.
-	$students = [
-		// array('netid' => '', 'email' => '', 'last_name' => '', 'first_name' => '', section => #, table => #)
-	];
+		// Load students from file.
+		$students = from_json(File::open($args[4])->content);
 
-	// Addition of assignments and grader overrides for individual assignments
-	//  should be done through the graphical user interface.
-
-	// ----------------------------------------------
-	// No need to edit below here.
-	// ----------------------------------------------
+		if($graders === null
+		|| $instructors === null
+		|| $grader_map === null
+		|| $students === null) {
+			fprintf(STDOUT, "An error occured parsing one or more data files (make sure the files contain valid JSON).\r\n");
+			return 1;
+		}
+	}
+	catch(FileException $e) {
+		fprintf(STDOUT, "An error occured reading one or more data files (make sure the files exist).\r\n");
+		return 1;
+	}
 
 	// Students
 	$sid_map = array();
 
 	foreach($students as $data) {
-		// todo
+		$sid_map[$data['netid']] = GradingSystem::addStudent(
+			$data['netid'],
+			$data['email'],
+			$data['last_name'],
+			$data['first_name'],
+			$data['section'],
+			$data['table']
+		);
 	}
 
 	// Instructors and Graders
@@ -59,17 +94,22 @@ CLIApplication::listen('init', function($args){
 	foreach($grader_map as $grader => $student) {
 		GradingSystem::assignGrader($uid_map[$grader], $sid_map[$student]);
 	}
+
+	fprintf(STDOUT, "Finished importing initial data in ".$timer->reap()."ms.\r\n");
 });
 
-CLIApplication::listen('seed', function($args){
-	// Create 100 dummy assignments.
-
-	// Create 100 dummy students.
-});
-
+/**
+ * Grade Exporting
+ * Exports grades into the destination file.
+ * Usage: php server.php export <file>
+ *
+ * <file> - location on disk to save results
+ * 
+ * This command will need to be finished by the instructor... not sure yet about required format.
+ */
 CLIApplication::listen('export', function($args){
 	if(count($args) < 2) {
-		fprintf(STDOUT, "Usage: export <file> - Exports grades into a CSV file with the provided name.\r\n");
+		fprintf(STDOUT, "Usage: export <file> - Exports grades into a file with the provided name.\r\n");
 		return -1;
 	}
 
