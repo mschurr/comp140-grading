@@ -127,8 +127,12 @@ class Assignments extends Controller
 	 */
 	public function editAction($id = null)
 	{
-		if($id !== null && GradingSystem::getAssignment($id) === null)
-			return 404;
+		$assignment = null;
+		if($id !== null) {
+			$assignment = GradingSystem::getAssignment($id);
+			if($assignment === null)
+				return 404;
+		}
 
 		$errors = array();
 
@@ -145,6 +149,9 @@ class Assignments extends Controller
 		if(!ctype_digit($this->request->post['section'])
 		|| !isset(GradingConfig::$section[(int)$this->request->post['section']]))
 			$errors['section'] = 'You must select a valid section.';
+
+		if($assignment !== null && $this->request->post['section'] !== $assignment['section'])
+			$errors['section'] = 'You cannot change an assignment\'s section - it may corrupt data.';
 
 		// Determine M, D, Y and validate.
 		$matches = array();
@@ -209,6 +216,7 @@ class Assignments extends Controller
 		$grades = GradingSystem::getGrades($id);
 		$graders = GradingSystem::getGradersForAssignment($id);
 		$overrides = GradingSystem::getOverridesForAssignment($id);
+		$unassigned = GradingSystem::getStudentsWithoutGraders($id);
 
 		return View::make('Admin.AssignmentView')->with(array(
 			'assignment' => $assignment,
@@ -216,12 +224,13 @@ class Assignments extends Controller
 			'grades' => new ImmutableDefaultArrayMap("-", $grades),
 			'students' => $students,
 			'graders' => new ImmutableDefaultArrayMap(0, $graders),
-			'errors' => new ImmutableDefaultArrayMap(null, $errors)
+			'errors' => new ImmutableDefaultArrayMap(null, $errors),
+			'unassigned' => $unassigned
 		));
 	}
 
 	/**
-	 *
+	 * Displays the form to add grader overrides for an assignment.
 	 */
 	public function addOverride($id, $errors = array())
 	{
@@ -230,14 +239,19 @@ class Assignments extends Controller
 		if(!$assignment)
 			return 404;
 
+		$students = GradingSystem::getAllStudentsInSection($assignment['section']);
+		$students->count();
+
 		return View::make('Admin.AssignmentOverride')->with(array(
 			'a' => $assignment,
-			'errors' => $errors
+			'errors' => new ImmutableDefaultArrayMap(NullObject::sharedInstance(), $errors),
+			'data' => $this->request->post,
+			'students' => $students
 		));
 	}
 
 	/**
-	 *
+	 * Handles adding grader overrides for an individual assignment.
 	 */
 	public function addOverrideAction($id)
 	{
@@ -252,15 +266,33 @@ class Assignments extends Controller
 		if(!CSRF::check($this->request->post['_csrf']))
 			return 400;
 
-		// Process
+		// Process the override.
 		$errors = array();
-		// TODO
+		$students = GradingSystem::getAllStudentsInSection($assignment['section'])->toArrayOfColumn('id');
+
+		if(!GradingSystem::isValidTeachingAssistant($this->request->post['userid']))
+			$errors['userid'] = 'You must select a valid teaching assistant.';
+
+		if(!isset($this->request->post['students'])) {
+			$errors['students'] = 'You must select at least one student.';
+		} else {
+			foreach($this->request->post['students'] as $sid) {
+				if(!in_array($sid, $students)) {
+					$errors['students'] = 'You must select valid students.';
+				}
+			}
+		}
 
 		// If there are errors, reshow the form.
 		if(count($errors) > 0)
 			return $this->addOverride($id, $errors);
 
-		// Otherwise, redirect the user back to the assignment view.
+		// Otherwise, process the insertion.
+		foreach($this->request->post['students'] as $sid) {
+			GradingSystem::addOverride($id, $this->request->post['userid'], $sid);
+		}
+
+		// And redirect the user back to the assignment view.
 		return Redirect::to([$this, 'view'], $id);
 	}
 

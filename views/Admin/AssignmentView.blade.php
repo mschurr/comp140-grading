@@ -30,8 +30,8 @@
 		<table class="grid midalign">
 			<thead>
 				<tr>
-					<th width="35%">Student</th>
-					<th>Grader</th>
+					<th>Student</th>
+					<th width="25%">Grader</th>
 					<th width="100">Delete</th>
 				</tr>
 			</thead>
@@ -61,18 +61,31 @@
 	<div class="section">
 		<div class="header">Grades</div>
 
+		@if(count($unassigned) > 0)
+			<div class="warning">The following students have not been assigned a grader:<br />
+
+			@for($i = 0; $i < min(5, count($unassigned)); $i++)
+				{{{ GradingSystem::getStudentName($unassigned[$i]) }}} <br />
+			@endfor
+
+			@if(count($unassigned) > 5)
+				... and {{{ count($unassigned) - 5 }}} others.<br />
+			@endif
+			</div>
+		@endif
+
 		@if(count($grades) < $students->records)
-			<div class="warning">
-				Attention: {{{ ($students->records - count($grades)) }}} 
+			<div class="notice">
+				{{{ ($students->records - count($grades)) }}} 
 				@if(($students->records - count($grades)) == 1)
 					student has 
 				@else
 					students have 
 				@endif
-				not yet received a grade.
+				not yet received a grade for this assignment.
 			</div>
 		@else
-			<div class="success">All students have received a grade for this assignment.</div>
+			<div class="notice">All students have received a grade for this assignment.</div>
 		@endif
 
 		<table class="grid">

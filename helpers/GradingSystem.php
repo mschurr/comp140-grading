@@ -22,10 +22,12 @@ class GradingSystem
 	// ------------------------------------------
 
 	protected /*Database*/ $db;
+	protected /*User_Service_Provider*/ $users;
 
 	protected /*void*/ function __construct()
 	{
 		$this->db = App::getDatabase();
+		$this->users = App::getUserService();
 	}
 
 	/**
@@ -150,6 +152,22 @@ class GradingSystem
 			return false;
 
 		return isset(Grades::$values[$grade]);
+	}
+
+	/**
+	 * Returns whether or not a user id belongs to a valid teaching assistant.
+	 */
+	protected /*bool*/ function isValidTeachingAssistant($userid)
+	{
+		$user = $this->users->load($userid);
+
+		if($user === null)
+			return false;
+
+		if(!$user->hasPrivilege(Privilege::TeachingAssistant))
+			return false;
+
+		return true;
 	}
 
 	/**
@@ -281,6 +299,14 @@ class GradingSystem
 	}
 
 	/**
+	 * Returns all students in a section and table.
+	 */
+	protected /*DatabaseChunkIterator*/ function getAllStudentsInSectionAndTable(/*int*/ $section, /*int*/ $table)
+	{
+		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? AND `table` = ? ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;", array($section, $table), 50);
+	}
+
+	/**
 	 * Assigns a grader to a student.
 	 */
 	protected /*void*/ function assignGrader(/*int*/ $userid, /*int*/ $studentid)
@@ -400,18 +426,73 @@ class GradingSystem
 	}
 
 	/**
-	 *
+	 * Removes an override from an assignment (if it exists).
 	 */
-	protected /*void*/ function addOverride(/*int*/ $aid, /*int*/ $userid, /*int*/ $studentid)
+	protected /*void*/ function dropOverrideIfExists(/*int*/ $aid, /*int*/ $sid)
 	{
-
+		$this->dropOverride($aid, $sid);
 	}
 
 	/**
-	 *
+	 * Finds students who have not been assigned a grader for a particular assignment.
+	 */
+	protected /*array<int>*/ function getStudentsWithoutGraders($aid)
+	{
+		$stmt = $this->db->prepare("SELECT * FROM `assignments` WHERE `id` = ? LIMIT 1;");
+		$a = $stmt->execute($aid);
+
+		if(count($a->rows) == 0)
+			return [];
+
+		$students = $this->db->prepare("SELECT `id` FROM `students` WHERE `section` = :section AND `id` NOT IN(
+			SELECT `studentid` FROM `graders`
+			UNION
+			SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid
+		);")->execute(array(
+			':aid' => $aid,
+			':section' => $a['section']
+		));
+
+		$data = array();
+
+		foreach($students as $row)
+			$data[] = $row['id'];
+
+		return $data;
+	}
+
+	/**
+	 * Overrides the grader assignment for an individual student for a particular assignment.
+	 */
+	protected /*void*/ function addOverride(/*int*/ $aid, /*int*/ $userid, /*int*/ $studentid)
+	{
+		// Delete any existing overrides.
+		$this->dropOverrideIfExists($aid, $studentid);
+
+		// Insert the new override.
+		$this->db->prepare("INSERT INTO `graders_override` (`userid`,`studentid`,`assignmentid`) VALUES (?,?,?);")
+			->execute([$userid, $studentid, $aid]);
+	}
+
+	/**
+	 * Overrides the grader assignment for all students at a given table for a particular assignment.
 	 */
 	protected /*void*/ function addOverrideForTable(/*int*/ $aid, /*int*/ $userid, /*int*/ $table)
 	{
+		$assignment = $this->getAssignment($aid);
+		$students = $this->getAllStudentsInSectionAndTable($assignment['section'], $table);
 
+		foreach($students as $sid) {
+			$this->addOverride($aid, $userid, $sid);
+		}
+	}
+
+	/**
+	 * Returns userids of all teaching assistants.
+	 * TODO(mschurr): This is note portable; depends on implementation of user service driver.
+	 */
+	protected /*DatabaseChunkIterator*/ function getTeachingAssistants()
+	{
+		return new DatabaseChunkIterator("SELECT `userid` FROM `user_privileges` WHERE `privilegeid` = ?;", [Privilege::TeachingAssistant], 50);
 	}
 }
