@@ -97,7 +97,7 @@ CLIApplication::listen('init', function($args) {
 			$uid_map[$netid] = GradingSystem::addInstructor($netid);
 
 			if (isset($data['name'])) {
-				$user = GradingSystem::enforceExistance($netid);
+				$user = GradingSystem::enforceExistence($netid);
 				$user->setProperty('name', $data['name']);
 			}
 		}
@@ -106,7 +106,7 @@ CLIApplication::listen('init', function($args) {
 			$uid_map[$netid] = GradingSystem::addGrader($netid);
 
 			if (isset($data['name'])) {
-				$user = GradingSystem::enforceExistance($netid);
+				$user = GradingSystem::enforceExistence($netid);
 				$user->setProperty('name', $data['name']);
 			}
 		}
@@ -219,17 +219,17 @@ CLIApplication::listen('revoke', function($args) {
 		return 0;
 	}
 
-	GradingSystem::revoke($args[1]);
+	GradingSystem::revokeAccess($args[1]);
 	fprintf(STDOUT, "Done\n.");
 	return 0;
 });
 
 /**
  * Grants a user access to the grading system.
- * Usage: php server.php grant <type> <netid> [<name>]
+ * Usage: php server.php grant <grader|instructor> <netid> [<name>]
  */
 CLIApplication::listen('grant', function($args) {
-	$usage = "php server.php grant <type> <netid> [<name>]\n";
+	$usage = "php server.php grant <grader|instructor> <netid> [<name>]\n";
 
 	if (count($args) < 3) {
 		fprintf(STDOUT, $usage);
@@ -237,7 +237,7 @@ CLIApplication::listen('grant', function($args) {
 	}
 
 	// Ensure the user exists in the system.
-	$user = GradingSystem::enforceExistance($args[1]);
+	$user = GradingSystem::enforceExistence($args[1]);
 
 	// Grant the user the appropriate permissions.
 	if ($args[1] == 'grader') {
