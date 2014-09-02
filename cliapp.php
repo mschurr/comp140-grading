@@ -220,7 +220,7 @@ CLIApplication::listen('revoke', function($args) {
 	}
 
 	GradingSystem::revokeAccess($args[1]);
-	fprintf(STDOUT, "Done\n.");
+	fprintf(STDOUT, "Done.\n");
 	return 0;
 });
 
@@ -237,13 +237,13 @@ CLIApplication::listen('grant', function($args) {
 	}
 
 	// Ensure the user exists in the system.
-	$user = GradingSystem::enforceExistence($args[1]);
+	$user = GradingSystem::enforceExistence($args[2]);
 
 	// Grant the user the appropriate permissions.
 	if ($args[1] == 'grader') {
-		GradingSystem::addGrader($args[1]);
+		GradingSystem::addGrader($args[2]);
 	} else if ($args[1] == 'instructor') {
-		GradingSystem::addInstructor($args[1]);
+		GradingSystem::addInstructor($args[2]);
 	} else {
 		fprintf(STDOUT, $usage);
 		return 0;
