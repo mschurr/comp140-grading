@@ -14,8 +14,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -25,7 +25,7 @@ time, mark, audio, video {
 	font: inherit;
 	vertical-align: baseline;
 }
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
@@ -192,7 +192,7 @@ form table td.label {
 
 form table td {
 	padding: 4px;
-	
+
 }
 
 form table td.error {
@@ -260,7 +260,7 @@ table, table.reset {
 	border: 0;
 	padding: 0;
 	margin: 0;
-	width: 100%;	
+	width: 100%;
 }
 
 table td, table th, table.reset td, table.reset th {
@@ -275,19 +275,19 @@ table.pad td, table.pad th, table.reset.pad td, table.reset.pad th {
 }
 
 table tr, table.reset tr {
-	border: 0;	
+	border: 0;
 }
 
 table td strong {
-	font-weight: bold;	
+	font-weight: bold;
 }
 
 table.reset td {
-	padding: 0px !important;	
+	padding: 0px !important;
 }
 
 table.reset tr {
-	border: 0px !important;	
+	border: 0px !important;
 }
 
 table.reset tr:nth-child(2n) {
@@ -404,7 +404,7 @@ table.grid.table-nav tr {
 	-moz-transition: all 0.2s ease-out;
 	-ms-transition: all 0.2s ease-out;
 	-o-transition: all 0.2s ease-out;
-	transition: all 0.2s ease-out;	
+	transition: all 0.2s ease-out;
 	cursor: pointer;
 }
 
@@ -417,7 +417,7 @@ table.grid.table-nav tr:hover {
 
 table.grid.table-nav a {
 	border: 0 !important;
-	text-decoration: none;	
+	text-decoration: none;
 }
 
 table.grid td.control
@@ -648,4 +648,27 @@ div.content .section {
 
 div.content .section table.grid {
 	margin: 10px 0px;
+}
+
+/*
+	####################################################################################
+	# Mobile
+	####################################################################################
+*/
+
+@media screen and (max-width: 600px) {
+	body {
+		background-color: black !important;
+	}
+
+	div.wrapper div.content_wrapper {
+		padding-left: 0px;
+		padding-right: 0px;
+		margin-top: 0px;
+	}
+
+	div.content > div.right, div.content > div.left, div.content {
+		display: block;
+		width: auto;
+	}
 }
