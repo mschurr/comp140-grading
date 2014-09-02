@@ -5,6 +5,16 @@
 
 import('GradingSystem');
 
+// A simple hack to force SSL on all requests.
+if (Config::get('ssl.forced', false)) {
+	if (!App::getRequest()->https) {
+		header('HTTP/1.1 302 Found');
+		$url = str_replace("http://", "https://", URL::to('/'));
+		header('Location: '.$url);
+		die();
+	}
+}
+
 /*############################
 # Public Pages
 ############################*/
@@ -52,23 +62,23 @@ $adminFilter = function(Request $request) {
 Route::filter($adminFilter, function(){
 	// Assignments
 	Route::get('/admin/assignments', 'Admin.Assignments@get');
-	
+
 	Route::get('/admin/assignments/add', 'Admin.Assignments@add');
 	Route::post('/admin/assignments/add', 'Admin.Assignments@addAction');
 
 	Route::get('/admin/assignments/{id}', 'Admin.Assignments@view')
 		->where('id', '[0-9]+');
-	
+
 	Route::get('/admin/assignments/{id}/edit', 'Admin.Assignments@edit')
 		->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/edit', 'Admin.Assignments@editAction')
 		->where('id', '[0-9]+');
-	
+
 	Route::get('/admin/assignments/{id}/delete', 'Admin.Assignments@delete')
 		->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/delete', 'Admin.Assignments@deleteAction')
 		->where('id', '[0-9]+');
-	
+
 	Route::get('/admin/assignments/{id}/add-override', 'Admin.Assignments@addOverride')
 		->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/add-override', 'Admin.Assignments@addOverrideAction')

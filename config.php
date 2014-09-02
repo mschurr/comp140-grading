@@ -21,10 +21,12 @@ Config::set(array(
 	'auth.cas.path' => '/cas',
 	'auth.cas.cert' => FILE_ROOT.'/rice-cas.pem',
 
+	'ssl.forced' => true,
+
 	/**
 	 * Development Mode
-	 * 
-	 * If development mode is enabled, you will be shown rich error messages. If development mode is not, you will be 
+	 *
+	 * If development mode is enabled, you will be shown rich error messages. If development mode is not, you will be
 	 *  shown production errors which reveal nothing (although the errors will still be logged).
 	 */
 	'app.development'	=> true,
@@ -56,7 +58,7 @@ class Grades {
 		3 => 'Check',
 		4 => 'CheckPlus'
 	);
-	
+
 	const Absent = 0;
 	const Late = 1;
 	const CheckMinus = 2;
