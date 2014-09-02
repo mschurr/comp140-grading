@@ -21,7 +21,7 @@ import('GradingSystem');
  * <grader_map_file> - json file assigning graders to students
  * <students_file> - json file containing students
  *
- * File format for graders and instructors is: 
+ * File format for graders and instructors is:
  *     { "netid" : {"name" : "Name"}, ... }
  *
  * File format for grader map is:
@@ -50,7 +50,7 @@ CLIApplication::listen('init', function($args) {
 		$graders = from_json(File::open($args[2])->content);
 
 		// Load grader assignments from file.
-		// File is of JSON format: 
+		// File is of JSON format:
 		$grader_map = from_json(File::open($args[3])->content);
 
 		// Load students from file.
@@ -95,10 +95,20 @@ CLIApplication::listen('init', function($args) {
 
 		foreach($instructors as $netid => $data) {
 			$uid_map[$netid] = GradingSystem::addInstructor($netid);
+
+			if (isset($data['name'])) {
+				$user = GradingSystem::enforceExistance($netid);
+				$user->setProperty('name', $data['name']);
+			}
 		}
 
 		foreach($graders as $netid => $data) {
 			$uid_map[$netid] = GradingSystem::addGrader($netid);
+
+			if (isset($data['name'])) {
+				$user = GradingSystem::enforceExistance($netid);
+				$user->setProperty('name', $data['name']);
+			}
 		}
 
 		// Grader Assignments
@@ -153,7 +163,7 @@ CLIApplication::listen('clean', function($args) {
  * Usage: php server.php export <file>
  *
  * <file> - location on disk to save results
- * 
+ *
  * This command will need to be finished by the instructor... not sure yet about required format.
  */
 CLIApplication::listen('export', function($args){
@@ -182,7 +192,7 @@ CLIApplication::listen('export', function($args){
 	// Iterate through all assignments...
 	foreach(GradingSystem::getAllAssignments() as $assignment) {
 		// Iterate through all of the grades for the assignment...
-		foreach(GradingSystem::getGrades($assignment['id']) 
+		foreach(GradingSystem::getGrades($assignment['id'])
 				as $studentid => $grade) {
 			// Grab information about the student (in case it's needed to export).
 			$student = GradingSystem::getStudent($studentid);
@@ -197,4 +207,52 @@ CLIApplication::listen('export', function($args){
 	fprintf(STDOUT, "Saved: %s\r\n", $file->canonicalPath);
 	fprintf(STDOUT, "Grade Export Completed.\r\n");
 	return 0;
+});
+
+/**
+ * Revokes a user's access to the grading system.
+ * Usage: php server.php revoke <netid>
+ */
+CLIApplication::listen('revoke', function($args) {
+	if (count($args) < 2) {
+		fprintf(STDOUT, "Usage: revoke <netid> - Revokes a user's access to the grading system.\n");
+		return 0;
+	}
+
+	GradingSystem::revoke($args[1]);
+	fprintf(STDOUT, "Done\n.");
+	return 0;
+});
+
+/**
+ * Grants a user access to the grading system.
+ * Usage: php server.php grant <type> <netid> [<name>]
+ */
+CLIApplication::listen('grant', function($args) {
+	$usage = "php server.php grant <type> <netid> [<name>]\n";
+
+	if (count($args) < 3) {
+		fprintf(STDOUT, $usage);
+		return 0;
+	}
+
+	// Ensure the user exists in the system.
+	$user = GradingSystem::enforceExistance($args[1]);
+
+	// Grant the user the appropriate permissions.
+	if ($args[1] == 'grader') {
+		GradingSystem::addGrader($args[1]);
+	} else if ($args[1] == 'instructor') {
+		GradingSystem::addInstructor($args[1]);
+	} else {
+		fprintf(STDOUT, $usage);
+		return 0;
+	}
+
+	// Optional: Update the user's real name.
+	if (isset($args[3])) {
+		$user->setProperty('name', $args[3]);
+	}
+
+	fprintf(STDOUT, "Done.\n");
 });

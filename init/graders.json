@@ -1,5 +1,23 @@
 {
-	"mas20" : {
-		"name" : "Matthew Schurr"
-	}
+	"rjs7" : {
+		"name" : "Rebecca Smith"
+	},
+  "mjd3" : {
+    "name" : "Matt Dunn-Rankin"
+  },
+  "egl1" : {
+    "name" : "Elizabeth Liu"
+  },
+  "jmn8" : {
+    "name" : "Jenna Netland"
+  },
+  "imh1" : {
+    "name" : "Julia Hossu"
+  },
+  "nbh2" : {
+    "name" : "Nicholas Hanson-Holtry"
+  },
+  "jmd11" : {
+    "name" : "Jeffrey Dudek"
+  }
 }
