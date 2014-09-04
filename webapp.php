@@ -45,6 +45,11 @@ Route::filter($teachingAssistantFilter, function() {
 		->where('id', '[0-9]+');
 	Route::post('/assignment/{id}', 'TeachingAssistantController@gradeAssignment')
 		->where('id', '[0-9]+');
+
+	Route::get('/assignment/{id}/all', 'TeachingAssistantController@showAssignmentAll')
+		->where('id', '[0-9]+');
+	Route::post('/assignment/{id}/all', 'TeachingAssistantController@gradeAssignmentAll')
+		->where('id', '[0-9]+');
 });
 
 /*############################

@@ -78,9 +78,9 @@ class GradingSystem
 		$assignment = GradingSystem::getAssignment($aid);
 
 		$query = $this->db->prepare("
-			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders_override` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `assignmentid` = :aid
+			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table`, `studentid` as `id` FROM `graders_override` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `assignmentid` = :aid
 			UNION
-			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `students`.`section` = :section AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid)
+			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table`, `studentid` as `id` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `students`.`section` = :section AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid)
 			ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;
 		")->execute(array(
 			':aid' => $aid,
@@ -298,7 +298,7 @@ class GradingSystem
 	 */
 	protected /*DatabaseChunkIterator*/ function getAllStudentsInSection(/*int*/ $section)
 	{
-		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;", array($section), 50);
+		return new DatabaseChunkIterator("SELECT * FROM `students` WHERE `section` = ? ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;", [$section], 50);
 	}
 
 	/**
