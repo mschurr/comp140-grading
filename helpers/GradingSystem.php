@@ -343,13 +343,11 @@ class GradingSystem
 	 */
 	protected /*array<string,mixed>*/ function getStudent(/*int*/ $studentid)
 	{
-		return Cache::section('students')->remember($studentid, function() use (&$studentid){
-			$query = $this->db->prepare("SELECT * FROM `students` WHERE `id` = ? LIMIT 1;")->execute($studentid);
+		$query = $this->db->prepare("SELECT * FROM `students` WHERE `id` = ? LIMIT 1;")->execute($studentid);
 
-			if(len($query) > 0)
-				return $query->row;
-			return null;
-		});
+		if(len($query) > 0)
+			return $query->row;
+		return null;
 	}
 
 	/**
@@ -436,14 +434,12 @@ class GradingSystem
 	 */
 	protected /*string*/ function getGraderName(/*int*/ $uid)
 	{
-		return Cache::section('graders')->remember($uid, function() use (&$uid){
-			$user = App::getUserService()->load($uid);
+		$user = App::getUserService()->load($uid);
 
-			if(!$user)
-				return null;
+		if(!$user)
+			return null;
 
-			return $user->username;
-		});
+		return $user->username;
 	}
 
 	/**
