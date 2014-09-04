@@ -75,14 +75,17 @@ class GradingSystem
 	 */
 	protected /*array<int>*/ function getStudents(/*int*/ $aid, /*int*/ $userid)
 	{
+		$assignment = GradingSystem::getAssignment($aid);
+
 		$query = $this->db->prepare("
 			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders_override` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `assignmentid` = :aid
 			UNION
-			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid)
+			SELECT `studentid`, `netid`, `last_name`, `first_name`, `table` FROM `graders` JOIN `students` ON `students`.`id` = `studentid` WHERE `userid` = :userid AND `students`.`section` = :section AND `studentid` NOT IN (SELECT `studentid` FROM `graders_override` WHERE `assignmentid` = :aid)
 			ORDER BY `table` ASC, `last_name` ASC, `first_name` ASC;
 		")->execute(array(
 			':aid' => $aid,
-			':userid' => $userid
+			':userid' => $userid,
+			':section' => $assignment['section']
 		));
 
 		$students = array();
