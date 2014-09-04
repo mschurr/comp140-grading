@@ -309,13 +309,30 @@ class GradingSystem
 	/**
 	 * Assigns a grader to a student.
 	 */
-	protected /*void*/ function assignGrader(/*int*/ $userid, /*int*/ $studentid)
+	protected /*void*/ function assignGrader(/*int*/ $userid, /*int*/ $studentid, /*bool*/ $override = false)
 	{
+		if ($override) {
+			$this->db->prepare("DELETE FROM `graders` WHERE `studentid` = ?;")->execute($studentid);
+		}
+
 		$data = array(
 			'userid' => $userid,
 			'studentid' => $studentid
 		);
 		$this->db->prepare("INSERT INTO `graders` (".sql_keys($data).") VALUES (".sql_values($data).");")->execute(sql_parameters($data));
+	}
+
+
+	/**
+	 * Returns a student by their network ID.
+	 */
+	protected /*array<string,mixed>*/ function getStudentByNetId(/*string*/ $netid) {
+		$query = $this->db->prepare("SELECT * FROM `students` WHERE `netid` = ? LIMIT 1;")->execute($netid);
+
+		if ($query->size == 0)
+			return null;
+
+		return $query->row;
 	}
 
 	/**
@@ -346,6 +363,7 @@ class GradingSystem
 	 */
 	protected /*int*/ function addStudent($netid, $email, $last_name, $first_name, $section, $table)
 	{
+		$query = $this->db->prepare("SELECT * FROM `students` WHERE `netid` = ? LIMIT 1;")->execute($netid);
 		$data = array(
 			'netid' => $netid,
 			'email' => $email,
@@ -354,7 +372,16 @@ class GradingSystem
 			'section' => $section,
 			'table' => $table
 		);
-		$query = $this->db->prepare("INSERT INTO `students` (".sql_keys($data).") VALUES (".sql_values($data).");")->execute(sql_parameters($data));
+
+		if ($query->size > 0) {
+			$q2 = $this->db->prepare("UPDATE `students` SET ".sql_update($data)." WHERE `id` = :id;");
+			$data['id'] = $query['id'];
+			$q2->execute($data);
+			return $query['id'];
+		}
+
+		$query = $this->db->prepare("INSERT INTO `students` (".sql_keys($data).") VALUES (".sql_values($data).");")
+			->execute(sql_parameters($data));
 		return $query->insertId;
 	}
 

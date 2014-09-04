@@ -69,6 +69,9 @@
 									@endif
 									>{{{ $sd }}}</option>
 							@endforeach
+							@if(!$id)
+								<option value="*">(CREATE FOR ALL SECTIONS)</option>
+							@endif
 						</select>
 					</td>
 				</tr>

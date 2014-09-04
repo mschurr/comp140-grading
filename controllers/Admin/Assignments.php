@@ -87,7 +87,7 @@ class Assignments extends Controller
 	 * Display confirmation prompt for deleting an assignment.
 	 */
 	public function delete($id, $errors = array())
-	{	
+	{
 		$assignment = GradingSystem::getAssignment($id);
 
 		if(!$assignment)
@@ -123,6 +123,22 @@ class Assignments extends Controller
 	}
 
 	/**
+	 * Returns whether or not a section code is valid.
+	 */
+	public /*boolean*/ function isValidSection($id, $section) {
+		if ($id === null && $section === '*')
+			return true;
+
+		if (!ctype_digit($this->request->post['section']))
+			return false;
+
+		if (!isset(GradingConfig::$section[(int)$this->request->post['section']]))
+			return false;
+
+		return true;
+	}
+
+	/**
 	 * Handles edits of an assignment.
 	 */
 	public function editAction($id = null)
@@ -146,8 +162,7 @@ class Assignments extends Controller
 			$errors['description'] = 'You must enter a description between 3 and 100 characters in length.';
 
 		// Validate Section
-		if(!ctype_digit($this->request->post['section'])
-		|| !isset(GradingConfig::$section[(int)$this->request->post['section']]))
+		if(!$this->isValidSection($id, $this->request->post['section']))
 			$errors['section'] = 'You must select a valid section.';
 
 		if($assignment !== null && $this->request->post['section'] !== $assignment['section'])
@@ -178,25 +193,37 @@ class Assignments extends Controller
 
 		// Insert new record.
 		if($id === null) {
-			$id = GradingSystem::addAssignment(
-				$month, 
-				$day, 
-				$year, 
-				$this->request->post['description'], 
-				$this->request->post['section']
-			);
+			if ($this->request->post['section'] == '*') {
+				foreach(GradingConfig::$section as $sid => $sdata) {
+					$id = GradingSystem::addAssignment(
+						$month,
+						$day,
+						$year,
+						$this->request->post['description'],
+					  $sid
+					);
+				}
+			} else {
+				$id = GradingSystem::addAssignment(
+					$month,
+					$day,
+					$year,
+					$this->request->post['description'],
+					$this->request->post['section']
+				);
+			}
 		// Update existing record.
 		} else {
 			GradingSystem::updateAssignment(
 				$id,
-				$month, 
-				$day, 
-				$year, 
-				$this->request->post['description'], 
+				$month,
+				$day,
+				$year,
+				$this->request->post['description'],
 				$this->request->post['section']
 			);
 		}
-		
+
 		// Redirect to result.
 		return Redirect::to([$this, 'view'], $id);
 	}

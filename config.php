@@ -21,7 +21,7 @@ Config::set(array(
 	'auth.cas.path' => '/cas',
 	'auth.cas.cert' => FILE_ROOT.'/rice-cas.pem',
 
-	'ssl.forced' => true,
+	'ssl.forced' => !is_cli_server_application(),
 
 	/**
 	 * Development Mode

@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS `graders`;
 CREATE TABLE `graders` (
   `userid` int(11) NOT NULL,
   `studentid` int(11) NOT NULL,
-  PRIMARY KEY (`userid`,`studentid`)
+  PRIMARY KEY (`studentid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `graders_override`;
