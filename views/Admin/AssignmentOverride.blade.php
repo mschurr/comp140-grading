@@ -1,6 +1,16 @@
 @extends('master')
 
 @section('content')
+	<script type="text/javascript">
+	function edu_rice_selectAllByTable(table) {
+		window.console.log('select all');
+		$.each($("form[name=add_overrides] input[type=checkbox]"), function(i, e) {
+			if ($(e).attr('data-table') == table) {
+				$(e).attr('checked', true);
+			}
+		});
+	}
+	</script>
 	<div class="section">
 		<div class="header">Add Assignment Override</div>
 
@@ -41,16 +51,25 @@
 				<tr>
 					<td class="label">Student(s):</td>
 				</tr>
+				<?php $table = -1; ?>
 				@foreach($students as $s)
+					@if ($s['table'] != $table)
+						<tr>
+							<td class="table_header">Table {{{ $s['table'] }}}
+							<a href="javascript:;" onclick="edu_rice_selectAllByTable({{{$s['table']}}})">(all)</a></td>
+						</tr>
+						<?php $table = $s['table']; ?>
+					@endif
 				<tr>
 					<td><label>
-					  <input type="checkbox" 
-					         name="students[]" 
+					  <input type="checkbox"
+					         name="students[]"
+					         data-table="{{{$s['table']}}}"
 					         value="{{{$s['id']}}}"
                              @if(isset($data['students']) && in_array((string)$s['id'], $data['students']))
-                             checked="checked" 
+                             checked="checked"
                              @endif
-					          /> 
+					          />
 					  {{{ GradingSystem::getStudentName($s['id']) }}}
 					</label></td>
 				</tr>

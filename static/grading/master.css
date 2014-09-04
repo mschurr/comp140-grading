@@ -672,3 +672,9 @@ div.content .section table.grid {
 		width: auto;
 	}
 }
+
+td.table_header {
+	font-size: 1.5em;
+	text-decoration: underline;
+	color: #F77F00;
+}
