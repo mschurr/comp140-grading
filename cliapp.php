@@ -185,3 +185,48 @@ CLIApplication::listen('grant', function($args) {
 
 	fprintf(STDOUT, "Done.\n");
 });
+
+
+CLIApplication::listen('updategraders', function() {
+	$db = App::getDatabase();
+	$db->prepare("DELETE FROM `graders`;")->execute();
+
+	$tables = array(
+		"rjs7" => [1, 2, 3, 6, 7, 8, 11, 12, 13],
+    "mjd3" => [4, 5, 9, 10, 14, 15, 20, 25],
+    "egl1" => [16, 17, 18, 19, 21, 22, 23, 24],
+    "jmn8" => [4, 5, 9, 10, 14, 15, 20, 25],
+    "imh1" => [1, 2, 3, 6, 7, 8, 11, 12, 13],
+    "nbh2" => [4, 5, 9, 10, 14, 15, 20, 25],
+    "jmd11" => [16, 17, 18, 19, 21, 22, 23, 24],
+    "mas20" => [16, 17, 18, 19, 21, 22, 23, 24]
+ 	);
+
+  $graders = array(
+  	'1' => ['rjs7', 'mjd3', 'mas20'],
+  	'2' => ['rjs7', 'jmn8', 'jmd11'],
+  	'3' => ['imh1', 'nbh2', 'egl1']
+  );
+
+	foreach(GradingSystem::getAllStudents() as $student) {
+		$section = $student['section'];
+		$table = $student['table'];
+		$netid = $student['netid'];
+		$tas = $graders[$section];
+		$grader = "";
+
+		foreach($tas as $ta) {
+			if (in_array($table, $tables[$ta])) {
+				$grader = $ta;
+				break;
+			}
+		}
+
+		if ($grader != "") {
+			$user = GradingSystem::enforceExistence($grader);
+			GradingSystem::assignGrader($user->id(), $student['id'], true);
+		} else {
+			fprintf(STDOUT, "ERROR: Unable to find grader for student '".$netid."'.\n");
+		}
+	}
+});
