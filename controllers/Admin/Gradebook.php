@@ -6,7 +6,7 @@ class Gradebook extends Controller {
 
     foreach(GradingConfig::$section as $section => $sname) {
       $view = $this->make_view($section);
-      $content .= $view->render();
+      $content .= $view->prepare()->render();
     }
 
     return View::make('Composite')->with(['content' => $content]);
