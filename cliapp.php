@@ -212,10 +212,20 @@ CLIApplication::listen('updategraders', function() {
 		$section = $student['section'];
 		$table = $student['table'];
 		$netid = $student['netid'];
+
+		if (!isset($graders[$section])) {
+			fprintf(STDOUT, "NOTICE: Unable to find grader for student '".$netid."'.\n");
+			continue;
+		}
+
 		$tas = $graders[$section];
 		$grader = "";
 
 		foreach($tas as $ta) {
+			if (!isset($tables[$ta])) {
+				continue;
+			}
+
 			if (in_array($table, $tables[$ta])) {
 				$grader = $ta;
 				break;
@@ -226,7 +236,7 @@ CLIApplication::listen('updategraders', function() {
 			$user = GradingSystem::enforceExistence($grader);
 			GradingSystem::assignGrader($user->id(), $student['id'], true);
 		} else {
-			fprintf(STDOUT, "ERROR: Unable to find grader for student '".$netid."'.\n");
+			fprintf(STDOUT, "NOTICE: Unable to find grader for student '".$netid."'.\n");
 		}
 	}
 });
