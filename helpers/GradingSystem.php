@@ -59,6 +59,14 @@ class GradingSystem
 	}
 
 	/**
+	 * Returns all assignments in a section.
+	 */
+	protected /*DatabaseChunkIterator*/ function getAllAssignmentsInSection(/*int*/ $section)
+	{
+		return new DatabaseChunkIterator("SELECT * FROM `assignments` WHERE `section` = ? ORDER BY `year` DESC, `month` DESC, `day` DESC;", [$section], 50);
+	}
+
+	/**
 	 * Returns information about a given assignment.
 	 */
 	protected /*array<string,mixed>*/ function getAssignment(/*int*/ $aid)

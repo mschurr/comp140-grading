@@ -19,10 +19,10 @@
             <div class="right">
                 <div class="right_content">
                 <div class="title">Options</div>
-                
+
                 @if(($user = App::getSession()->user) !== null)
                 	Welcome, {{{ $user }}}!<br />
-                    
+
                     <ul class="side_navigation">
 
                     	@if($user->hasPrivilege(Privilege::TeachingAssistant))
@@ -33,6 +33,7 @@
 
                         @if($user->hasPrivilege(Privilege::Instructor))
                             <li><a href="{{{ URL::to('Admin.Assignments@get') }}}">Manage Assignments</a></li>
+                            <li><a href="{{{ URL::to('Admin.Gradebook') }}}">Gradebook</a></li>
                             <!--<li><a href="">Manage Instructors</a></li>
                             <li><a href="">Manage Graders</a></li>
                             <li><a href="">Manage Grader Assignments</a></li>
@@ -48,9 +49,9 @@
                     	<li><a href="{{{ URL::to('AuthController@login') }}}">Log in</a></li>
                     </ul>
                 @endif
-                </div>                                       
+                </div>
             </div>
-            
+
     	</div>
     </div>
     <br />
