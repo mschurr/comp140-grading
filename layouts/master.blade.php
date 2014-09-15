@@ -27,13 +27,13 @@
 
                     	@if($user->hasPrivilege(Privilege::TeachingAssistant))
                     		<li><a href="{{{ URL::to('TeachingAssistantController@showAssignments') }}}">Grade</a></li>
+                            <li><a href="{{{ URL::to('Admin.Gradebook') }}}">Gradebook</a></li>
                         @else
                             <li><a href="{{{ URL::to('/') }}}">Home</a></li>
                     	@endif
 
                         @if($user->hasPrivilege(Privilege::Instructor))
                             <li><a href="{{{ URL::to('Admin.Assignments@get') }}}">Manage Assignments</a></li>
-                            <li><a href="{{{ URL::to('Admin.Gradebook') }}}">Gradebook</a></li>
                             <!--<li><a href="">Manage Instructors</a></li>
                             <li><a href="">Manage Graders</a></li>
                             <li><a href="">Manage Grader Assignments</a></li>

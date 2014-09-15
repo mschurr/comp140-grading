@@ -50,6 +50,8 @@ Route::filter($teachingAssistantFilter, function() {
 		->where('id', '[0-9]+');
 	Route::post('/assignment/{id}/all', 'TeachingAssistantController@gradeAssignmentAll')
 		->where('id', '[0-9]+');
+
+	Route::get('/admin/gradebook', 'Admin.Gradebook');
 });
 
 /*############################
@@ -90,8 +92,6 @@ Route::filter($adminFilter, function(){
 		->where('id', '[0-9]+');
 	Route::post('/admin/assignments/{id}/delete-override', 'Admin.Assignments@deleteOverride')
 		->where('id', '[0-9]+');
-
-	Route::get('/admin/gradebook', 'Admin.Gradebook');
 
 });
 
