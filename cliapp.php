@@ -11,6 +11,8 @@
  */
 import('GradingSystem');
 import('GradingSystemImporter');
+import('CLIUtilities');
+import('CLIController');
 
 /**
  * Imports initial information into the grading system at the start of the year.
@@ -240,3 +242,5 @@ CLIApplication::listen('updategraders', function() {
 		}
 	}
 });
+
+CLIApplication::listen('prompt', 'CLIQueryController');
