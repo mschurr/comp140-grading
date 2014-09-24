@@ -56,7 +56,8 @@ class Grades {
 		1 => 'Late',
 		2 => 'CheckMinus',
 		3 => 'Check',
-		4 => 'CheckPlus'
+		4 => 'CheckPlus',
+    5 => 'Excused Absence'
 	);
 
 	const Absent = 0;
@@ -64,4 +65,5 @@ class Grades {
 	const CheckMinus = 2;
 	const Check = 3;
 	const CheckPlus = 4;
+  const ExcusedAbsence = 5;
 }
