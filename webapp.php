@@ -93,6 +93,7 @@ Route::filter($adminFilter, function(){
 	Route::post('/admin/assignments/{id}/delete-override', 'Admin.Assignments@deleteOverride')
 		->where('id', '[0-9]+');
 
+	Route::get('/admin/export', 'Admin.Export@get');
 });
 
 /*############################

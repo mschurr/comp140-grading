@@ -51,6 +51,20 @@ class GradingSystem
 	}
 
 	/**
+	 * Returns all of a student's grades.
+	 */
+	protected /*array<int, int>*/ function getAllGrades($studentid) {
+		$query = $this->db->prepare("SELECT * FROM `grades` WHERE `studentid` = ?;")->execute([$studentid]);
+		$grades = array();
+
+		foreach ($query as $row) {
+			$grades[(int) $row['assignmentid']] = (int) $row['grade'];
+		}
+
+		return $grades;
+	}
+
+	/**
 	 * Returns all assignments.
 	 */
 	protected /*DatabaseChunkIterator*/ function getAllAssignments()
