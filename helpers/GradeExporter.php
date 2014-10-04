@@ -2,6 +2,12 @@
 
 import('GradingSystem');
 
+class ExportedGrade {
+  public /*string*/ $name;
+  public /*string*/ $netid;
+  public /*double*/ $grade;
+}
+
 class GradeExporter {
   protected /*Database*/ $db;
 
@@ -9,19 +15,19 @@ class GradeExporter {
     $this->db =& $db;
   }
 
-  public /*ArrayObject<string, double>*/ function export() {
+  public /*array<ExportedGrade>*/ function export() {
     $students = GradingSystem::getAllStudents();
     $assignments = GradingSystem::getAllAssignments();
     $map = array();
 
     foreach ($students as $student) {
-      $map[$student['netid']] = $this->calculateGrade($student, $assignments);
+      $map[] = $this->calculateGrade($student, $assignments);
     }
 
     return $map;
   }
 
-  public /*double*/ function calculateGrade(/*ArrayAccess<string, string>*/ $student,
+  public /*ExportedGrade*/ function calculateGrade(/*ArrayAccess<string, string>*/ $student,
                                             /*Iterator<ArrayAccess<string, string>>*/ $assignments) {
     $total = 0;
     $points = 0.0;
@@ -74,6 +80,10 @@ class GradeExporter {
     }
 
     // The average points earned per day will determine the student's grade.
-    return ($total == 0) ? 0 : $points / $total;
+    $eg = new ExportedGrade();
+    $eg->name = $student['last_name']. ', '. $student['first_name'];
+    $eg->netid = $student['netid'];
+    $eg->grade = ($total == 0) ? 0 : $points / $total;
+    return $eg;
   }
 }
