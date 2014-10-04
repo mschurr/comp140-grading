@@ -1,10 +1,37 @@
 <?php
-/*
-	This Controller is for use by the Authentication System.
-	You do not need to modify this file.
-*/
+require_once(FRAMEWORK_ROOT."/plugins/CAS.php");
 
-class AuthController extends Controller
+use mschurr\framework\plugins\CAS\CASAuthenticator;
+
+/**
+ * A controller for handling authentication via the CAS authentiation driver.
+ */
+class AuthController extends Controller {
+  public function login() {
+    if ($this->auth->loggedIn) {
+      return Redirect::to('/');
+    }
+
+    try {
+      $this->auth->attempt(null, null, true);
+    } catch (AuthException $e) {
+      return 400; // Bad Request
+    }
+  }
+
+  public function loginAction() { return 405; }
+
+  public function logout() {
+    if (!$this->auth->loggedIn) {
+      return Redirect::to('/');
+    }
+
+    $this->auth->logout();
+  }
+}
+
+
+class zzOldAuthController extends Controller
 {
 	public function get_cas()
 	{
