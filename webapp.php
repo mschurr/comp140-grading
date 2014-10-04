@@ -21,7 +21,7 @@ if (Config::get('ssl.forced', false)) {
 
 Route::get('/', function(Request $request, Response $response){
 	if(!$request->session->user)
-		return Redirect::to('CASController@login');
+		return Redirect::to('AuthController@login');
 	if(!$request->session->user->hasPrivilege(Privilege::TeachingAssistant))
 		return 403;
 	return Redirect::to('TeachingAssistantController@showAssignments');
@@ -33,7 +33,7 @@ Route::get('/', function(Request $request, Response $response){
 
 $teachingAssistantFilter = function(Request $request){
 	if(!$request->session->auth->loggedIn)
-		return Redirect::to('CASController@login');
+		return Redirect::to('AuthController@login');
 	if(!$request->session->auth->user->hasPrivilege(Privilege::TeachingAssistant))
 		return 403;
 	return true;
@@ -60,7 +60,7 @@ Route::filter($teachingAssistantFilter, function() {
 
 $adminFilter = function(Request $request) {
 	if(!$request->session->auth->loggedIn)
-		return Redirect::to('CASController@login');
+		return Redirect::to('AuthController@login');
 	if(!$request->session->auth->user->hasPrivilege(Privilege::Instructor))
 		return 403;
 	return true;
@@ -100,9 +100,9 @@ Route::filter($adminFilter, function(){
 # Authentication Service
 ############################*/
 
-Route::get ('/login',  'CASController@login'      );
-Route::post('/login',  'CASController@loginAction');
-Route::get ('/logout', 'CASController@logout'     );
+Route::get ('/login',  'AuthController@login'      );
+Route::post('/login',  'AuthController@loginAction');
+Route::get ('/logout', 'AuthController@logout'     );
 
 /*############################
 # Error Pages
